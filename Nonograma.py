@@ -1,10 +1,8 @@
 from copy import deepcopy
 from pprint import pprint
-from time import sleep
 
 
 # F.inicio
-
 def CrearTablero(data):
     T = []  # Para crear el tablero se ponen al principio de cada fila el número de # que va a haber
     for i in range(0, len(data["rows"])):
@@ -24,8 +22,7 @@ def Iniciar(*args):
         "rows": list(map(int, args[1].strip().split())),
         "cols": list(map(int, args[2].strip().split()))
     }
-    if len(data["rows"]) != r or len(data["cols"]) != c or any(row > c for row in data["rows"]) or any(
-            col > r for col in data["cols"]):
+    if len(data["rows"]) != r or len(data["cols"]) != c or any(row > c for row in data["rows"]) or any(col > r for col in data["cols"]):
         # Si uno de los datos es incorrecto en la entrada devuelve imposible
         return "IMPOSIBLE"
     else:  # Se crea el tablero
@@ -100,8 +97,6 @@ def Desplazar(T, row, data):
 
 def __rec__(T, data, row):
     t = deepcopy(T)
-    if row == 4:
-        print("")
     if row == len(t) - 1:
         desplazable = True
         sol = False
@@ -126,7 +121,7 @@ def __rec__(T, data, row):
                 else:
                     avanzable = Desplazar(t, row, data)# Si los inferiores no dan solución se avanza la actual
             else:
-                for i in range(1, len(T)-row):
+                for i in range(0, len(T)-row):
                     avanzable = Desplazar(t, row+i, data)
                     if not avanzable:
                             break
@@ -148,6 +143,5 @@ def Convertir(T):
 from time import time
 
 tini = time()
-pprint(Iniciar("5 5", "1 3 5 3 1",
-                                 "1 3 5 3 1"))
+pprint(Iniciar("15 15", "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15", "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15"))
 print(time() - tini)
