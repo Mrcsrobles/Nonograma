@@ -81,7 +81,7 @@ def Comprobar(T, data):
 
 # Funcion de movimiento
 
-def Desplazar(T, row, data):
+def Desplazar(T, row, data,iter=0):
     try:
         ini = T[row].index(1)  # Se saca la posición del primer 1
         fin = ini + data["rows"][row]
@@ -91,9 +91,14 @@ def Desplazar(T, row, data):
             return True
         else:
             return False
-    except ValueError: # si no hay 1 siempre va a ser desplazable
-        return True
-
+    except ValueError: # si no hay 1 dependiendo de la situación lo consideraremos desplazable o no
+        if iter==0:
+            if row == len(T) - 1:
+                return True
+            else:
+                return False
+        else:
+            return False
 
 def __rec__(T, data, row):
     t = deepcopy(T)
@@ -106,8 +111,7 @@ def __rec__(T, data, row):
                 aux = Convertir(t)
                 return (sol, aux)
             else:
-                desplazable = Desplazar(t, row, data)
-
+                desplazable = Desplazar(t, row, data,iter=1)
         return (sol, [])
     else:
         avanzable = True
@@ -119,12 +123,13 @@ def __rec__(T, data, row):
                 if result[0]:  # Se comprueba la siguiente fila
                     return (True, result[1])
                 else:
-                    avanzable = Desplazar(t, row, data)# Si los inferiores no dan solución se avanza la actual
+                    avanzable = Desplazar(t, row, data,iter=1)# Si los inferiores no dan solución se avanza la actual
             else:
                 for i in range(0, len(T)-row):
                     avanzable = Desplazar(t, row+i, data)
                     if not avanzable:
-                            break
+                        break
+
         return (solucionado, [])
 
 
@@ -143,5 +148,6 @@ def Convertir(T):
 from time import time
 
 tini = time()
-pprint(Iniciar("15 15", "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15", "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15"))
+pprint(Iniciar("20 19", "1 3 5 7 9 11 13 15 17 19 19 17 15 13 11 9 7 5 3 1",
+                                 "2 4 6 8 10 12 14 16 18 20 18 16 14 12 10 8 6 4 2"))
 print(time() - tini)
