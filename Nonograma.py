@@ -1,10 +1,9 @@
-from copy import deepcopy
 from pprint import pprint
 
 
 # F.inicio
 def CrearTablero(data):
-    T = []  # Para crear el tablero se ponen al principio de cada fila el número de # que va a haber
+    T=[]  # Para crear el tablero se ponen al principio de cada fila el número de # que va a haber
     for i in range(0, len(data["rows"])):
         T.append([])
         for j in range(0, len(data["cols"])):
@@ -14,6 +13,16 @@ def CrearTablero(data):
                 T[-1].append(0)
     return T
 
+def ReiniciarTablero(data,rowini=0,T=[]):
+    for i in range(rowini, len(data["rows"])):
+        T[i]=[]
+        for j in range(0, len(data["cols"])):
+
+            if j < data["rows"][i]:
+                T[i].append(1)
+            else:
+                T[i].append(0)
+    return T
 
 def Iniciar(*args):
     r, c = map(int, args[0].strip().split())
@@ -28,10 +37,10 @@ def Iniciar(*args):
     else:  # Se crea el tablero
         T = CrearTablero(data)
         sol = __rec__(T, data, 0)  # Devuelve una tupla booleano, nonograma
-        if not sol[0]:
+        if not sol:
             return "IMPOSIBLE"
         else:
-            return sol[1]
+            return Convertir(T)
 
 
 # F. Factibilidad
@@ -63,7 +72,6 @@ def ComprobarCol(T, c, data):
     acabado = False
     for i in range(0, len(T)):
         val = T[i][c]
-
         if val == 0 and iniciado:
             acabado = True
         elif val == 1 and acabado:
@@ -81,7 +89,7 @@ def Comprobar(T, data):
 
 # Funcion de movimiento
 
-def Desplazar(T, row, data,iter=0):
+def Desplazar(T, row, data,SeVaAmover=0):
     try:
         ini = T[row].index(1)  # Se saca la posición del primer 1
         fin = ini + data["rows"][row]
@@ -92,45 +100,39 @@ def Desplazar(T, row, data,iter=0):
         else:
             return False
     except ValueError: # si no hay 1 dependiendo de la situación lo consideraremos desplazable o no
-        if iter==0:
-            if row == len(T) - 1:
-                return True
-            else:
+            if SeVaAmover==1:
                 return False
-        else:
-            return False
-
+            else:
+                return True
 def __rec__(T, data, row):
-    t = deepcopy(T)
-    if row == len(t) - 1:
-        desplazable = True
-        sol = False
-        while desplazable and not sol:
-            sol = Comprobar(t, data)  # Si se ha llegado a la última fila y no ha funcionado es False
-            if sol:
-                aux = Convertir(t)
-                return (sol, aux)
+    if row==len(T)-1:
+        try:
+            T[row].index(1)
+            d=True
+            while not Comprobar(T,data) and d:
+                d=Desplazar(T,row,data)
+                if not d:
+                    return False
             else:
-                desplazable = Desplazar(t, row, data,iter=1)
-        return (sol, [])
+                return True
+        except ValueError:
+            return Comprobar(T,data)#En el caso de que la última fila sea 0 todos será un caso especial
     else:
-        avanzable = True
-        solucionado = False
+        d=True
 
-        while avanzable and not solucionado:
-            if Factible(t, row,data):
-                result = __rec__(t, data, row + 1)
-                if result[0]:  # Se comprueba la siguiente fila
-                    return (True, result[1])
+        while d :
+            if Factible(T,row,data):
+                if __rec__(T,data,row+1):
+                    return True
                 else:
-                    avanzable = Desplazar(t, row, data,iter=1)# Si los inferiores no dan solución se avanza la actual
+                    ReiniciarTablero(data,row+1,T)#Se reinician las filas inferiores
+                    d=Desplazar(T,row,data,SeVaAmover=1)
             else:
-                for i in range(0, len(T)-row):
-                    avanzable = Desplazar(t, row+i, data)
-                    if not avanzable:
+                for i in range(row,len(T)):
+                    d=Desplazar(T,i,data)
+                    if not d:
                         break
-
-        return (solucionado, [])
+        return False
 
 
 def Convertir(T):
@@ -148,6 +150,5 @@ def Convertir(T):
 from time import time
 
 tini = time()
-pprint(Iniciar("20 19", "1 3 5 7 9 11 13 15 17 19 19 17 15 13 11 9 7 5 3 1",
-                                 "2 4 6 8 10 12 14 16 18 20 18 16 14 12 10 8 6 4 2"))
+pprint(Iniciar("20 20", "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20", "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"))
 print(time() - tini)
