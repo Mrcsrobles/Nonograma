@@ -150,5 +150,6 @@ def Convertir(T):
 from time import time
 
 tini = time()
-pprint(Iniciar("20 20", "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20", "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"))
+#pprint(Iniciar("20 20 ", "1 2 2 2 1 0 2 6 11 10 10 9 9 10 15 14 5 4 2 1 ",
+ #                                "1 3 3 7 11 13 13 12 10 9 8 5 3 2 2 2 2 2 4 4 "))
 print(time() - tini)
