@@ -3,7 +3,7 @@ from pprint import pprint
 
 # F.inicio
 def CrearTablero(data):
-    T=[]  # Para crear el tablero se ponen al principio de cada fila el número de # que va a haber
+    T = []  # Para crear el tablero se ponen al principio de cada fila el número de # que va a haber
     for i in range(0, len(data["rows"])):
         T.append([])
         for j in range(0, len(data["cols"])):
@@ -13,9 +13,10 @@ def CrearTablero(data):
                 T[-1].append(0)
     return T
 
-def ReiniciarTablero(data,rowini=0,T=[]):
+
+def ReiniciarTablero(data, rowini=0, T=[]):
     for i in range(rowini, len(data["rows"])):
-        T[i]=[]
+        T[i] = []
         for j in range(0, len(data["cols"])):
 
             if j < data["rows"][i]:
@@ -24,14 +25,39 @@ def ReiniciarTablero(data,rowini=0,T=[]):
                 T[i].append(0)
     return T
 
+
+def SacarColRows(rc,rows, cols):  # esta función se usa para optimizar el código, ya que dependiendo de
+    # si cómo estén ordenadas las filas y las columnas puede tardar 0s o tardar demasiado
+    r, c = map(int,rc.strip().split())
+    print(r,c)
+    rows = list(map(int, rows.strip().split()))
+    cols = list(map(int, cols.strip().split()))
+    data = {}
+    data["permutaciones"] = [False, False, False]
+    data["r"]=r
+    data["c"]=c
+    # cambiar filas por columnas, cambiar cols, cambiar rows
+    if len(rows)>0 and len(cols)>0:
+        if len(rows) > len(cols):  # Se quiere que las filas sean lo mayor posibles y las columnas lo menor posible, pero con el menor número de rows posible
+            rows, cols = cols, rows
+            data["permutaciones"][0] = True
+            data["r"],data["c"]=data["c"],data["r"]
+        if sum(rows[:len(rows) // 2]) < sum(rows[len(rows) // 2:]):
+            rows.reverse()
+            data["permutaciones"][2] = True
+        if sum(cols[:len(cols) // 2]) < sum(cols[len(cols) // 2:]):
+            cols.reverse()
+            data["permutaciones"][1] = True
+    data["rows"] = rows
+    data["cols"] = cols
+    return data
+
+
 def Iniciar(*args):
-    r, c = map(int, args[0].strip().split())
-    print(r, c)
-    data = {
-        "rows": list(map(int, args[1].strip().split())),
-        "cols": list(map(int, args[2].strip().split()))
-    }
-    if len(data["rows"]) != r or len(data["cols"]) != c or any(row > c for row in data["rows"]) or any(col > r for col in data["cols"]):
+
+    data = SacarColRows(args[0],args[1], args[2])
+    if len(data["rows"]) != data["r"] or len(data["cols"]) != data["c"] or any(row > data["c"] for row in data["rows"]) or any(
+            col > data["r"] for col in data["cols"]):
         # Si uno de los datos es incorrecto en la entrada devuelve imposible
         return "IMPOSIBLE"
     else:  # Se crea el tablero
@@ -40,7 +66,7 @@ def Iniciar(*args):
         if not sol:
             return "IMPOSIBLE"
         else:
-            return Convertir(T)
+            return Convertir(T, data)
 
 
 # F. Factibilidad
@@ -89,7 +115,7 @@ def Comprobar(T, data):
 
 # Funcion de movimiento
 
-def Desplazar(T, row, data,SeVaAmover=0):
+def Desplazar(T, row, data, SeVaAmover=0):
     try:
         ini = T[row].index(1)  # Se saca la posición del primer 1
         fin = ini + data["rows"][row]
@@ -99,43 +125,59 @@ def Desplazar(T, row, data,SeVaAmover=0):
             return True
         else:
             return False
-    except ValueError: # si no hay 1 dependiendo de la situación lo consideraremos desplazable o no
-            if SeVaAmover==1:
-                return False
-            else:
-                return True
+    except ValueError:  # si no hay 1 dependiendo de la situación lo consideraremos desplazable o no
+        if SeVaAmover == 1:
+            return False
+        else:
+            return True
+
+
 def __rec__(T, data, row):
-    if row==len(T)-1:
+    if row == len(T) - 1:
         try:
             T[row].index(1)
-            d=True
-            while not Comprobar(T,data) and d:
-                d=Desplazar(T,row,data)
+            d = True
+            while not Comprobar(T, data) and d:
+                d = Desplazar(T, row, data)
                 if not d:
                     return False
             else:
                 return True
         except ValueError:
-            return Comprobar(T,data)#En el caso de que la última fila sea 0 todos será un caso especial
+            return Comprobar(T, data)  # En el caso de que la última fila sea 0 todos será un caso especial
     else:
-        d=True
+        d = True
 
-        while d :
-            if Factible(T,row,data):
-                if __rec__(T,data,row+1):
+        while d:
+            if Factible(T, row, data):
+                if __rec__(T, data, row + 1):
                     return True
                 else:
-                    ReiniciarTablero(data,row+1,T)#Se reinician las filas inferiores
-                    d=Desplazar(T,row,data,SeVaAmover=1)
+                    ReiniciarTablero(data, row + 1, T)  # Se reinician las filas inferiores
+                    d = Desplazar(T, row, data, SeVaAmover=1)
             else:
-                for i in range(row,len(T)):
-                    d=Desplazar(T,i,data)
+                for i in range(row, len(T)):
+                    d = Desplazar(T, i, data)
                     if not d:
                         break
         return False
 
 
-def Convertir(T):
+def Convertir(T, data):
+    # Esta parte se usa para la optimización
+    if data["permutaciones"][0]:
+        for i in range(0, len(T)):
+            for j in range(0, len(T[i])):
+                if i == j:
+                    break
+                else:
+                    T[i][j], T[j][i] = T[j][i], T[i][j]
+    if data["permutaciones"][1]:
+        for i in range(0, len(T)):
+            T[i].reverse()
+    if data["permutaciones"][2]:
+        T.reverse()
+
     for i in range(0, len(T)):
         print("")
         for j in range(0, len(T[i])):
@@ -150,6 +192,6 @@ def Convertir(T):
 from time import time
 
 tini = time()
-#pprint(Iniciar("20 20 ", "1 2 2 2 1 0 2 6 11 10 10 9 9 10 15 14 5 4 2 1 ",
- #                                "1 3 3 7 11 13 13 12 10 9 8 5 3 2 2 2 2 2 4 4 "))
+pprint(Iniciar("20 20 ", "4 4 3 4 6 10 11 8 8 7 6 6 6 5 4 2 2 2 2 1 ",
+                                 "3 2 10 11 10 10 9 8 6 5 3 4 4 5 2 2 2 2 2 1 "))
 print(time() - tini)
