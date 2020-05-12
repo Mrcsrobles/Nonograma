@@ -36,17 +36,13 @@ def SacarColRows(rc,rows, cols):  # esta función se usa para optimizar el códi
     data["permutaciones"] = [False, False, False]
     data["r"]=r
     data["c"]=c
-    # cambiar filas por columnas, cambiar cols, cambiar rows
+    # cambiar cols, cambiar rows
     if len(rows)>0 and len(cols)>0:
-        if len(rows) > len(cols):  # Se quiere que las filas sean lo mayor posibles y las columnas lo menor posible, pero con el menor número de rows posible
-            rows, cols = cols, rows
-            data["permutaciones"][0] = True
-            data["r"],data["c"]=data["c"],data["r"]
-        if sum(rows[:len(rows) // 2]) < sum(rows[len(rows) // 2:]):
-            rows.reverse()
-            data["permutaciones"][2] = True
         if sum(cols[:len(cols) // 2]) < sum(cols[len(cols) // 2:]):
             cols.reverse()
+            data["permutaciones"][0] = True
+        if sum(rows[:len(rows) // 2]) < sum(rows[len(rows) // 2:]):
+            rows.reverse()
             data["permutaciones"][1] = True
     data["rows"] = rows
     data["cols"] = cols
@@ -54,7 +50,6 @@ def SacarColRows(rc,rows, cols):  # esta función se usa para optimizar el códi
 
 
 def Iniciar(*args):
-
     data = SacarColRows(args[0],args[1], args[2])
     if len(data["rows"]) != data["r"] or len(data["cols"]) != data["c"] or any(row > data["c"] for row in data["rows"]) or any(
             col > data["r"] for col in data["cols"]):
@@ -165,17 +160,11 @@ def __rec__(T, data, row):
 
 def Convertir(T, data):
     # Esta parte se usa para la optimización
+
     if data["permutaciones"][0]:
         for i in range(0, len(T)):
-            for j in range(0, len(T[i])):
-                if i == j:
-                    break
-                else:
-                    T[i][j], T[j][i] = T[j][i], T[i][j]
-    if data["permutaciones"][1]:
-        for i in range(0, len(T)):
             T[i].reverse()
-    if data["permutaciones"][2]:
+    if data["permutaciones"][1]:
         T.reverse()
 
     for i in range(0, len(T)):
@@ -192,6 +181,6 @@ def Convertir(T, data):
 from time import time
 
 tini = time()
-pprint(Iniciar("20 20 ", "4 4 3 4 6 10 11 8 8 7 6 6 6 5 4 2 2 2 2 1 ",
-                                 "3 2 10 11 10 10 9 8 6 5 3 4 4 5 2 2 2 2 2 1 "))
+pprint(Iniciar("20 20 ", "0 0 1 1 1 3 15 9 5 5 3 3 3 3 3 1 1 1 1 0 ",
+                                 "0 0 1 1 1 2 2 4 10 17 10 4 2 2 1 1 1 0 0 0 "))
 print(time() - tini)
