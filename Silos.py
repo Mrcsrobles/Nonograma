@@ -4,16 +4,18 @@ se vayan eliminando
 """
 
 
-def fun(args):
+def fun(*args):
     vol = int(args[0])
     numSilos = args[1]
     silos = []
     for i in range(0, int(numSilos)):
         # primero base y luego altura
         base, altura = map(int, args[i + 2].strip().split())
-        AñadirOrdenadamente(silos, (base, altura))
+        AñadirOrdenadamente(silos, (base, altura-1))
+    """
     contadorAltura = 1
     cantidad = 0
+    
     while not cantidad == vol:
         for silo in range(0, len(silos)):
             if silos[silo][1] < contadorAltura:
@@ -22,8 +24,9 @@ def fun(args):
             else:
                 cantidad += silos[silo][0]
         contadorAltura += 1
-    return contadorAltura-1
-
+    return contadorAltura - 1
+    """
+    return BusquedaBinariaVertical(silos,vol) +1 #+1 ya que se empieza a contar en 0 pero los silos en 1
 
 def AñadirOrdenadamente(lista: list, dato):
     pos = BusquedaBinaria(lista, dato[1])
@@ -57,11 +60,60 @@ def __rec__(lista, buscado, ini, fin):
     elif fin < ini:
         return -1
 
-f = open(r"C:\Users\PC\PycharmProjects\Nonograma\casoPeorPractica2.txt","r")
-l=f.readlines()
+
+def BusquedaBinariaVertical(l, obj):
+    if obj == 0:
+        return 0
+    else:
+        return __recVertical__(l, obj, 0, 0, l[0][1],False)
+
+
+def __recVertical__(l, obj, cantidad, levelini, levelfin,tipo):
+    #Tipo es para marcar ascenso o descenso, True para descenso
+    level = (levelfin + levelini) // 2
+    if tipo:
+        cantidad = CalcularDiferencia(l, cantidad, levelfin, level, tipo)
+    else:
+        cantidad = CalcularDiferencia(l, cantidad, levelini, level,tipo)
+
+    if cantidad == obj:
+        return level
+    elif cantidad > obj:
+        return __recVertical__(l, obj, cantidad, levelini, level-1,True)
+
+    elif cantidad < obj:
+        return __recVertical__(l, obj, cantidad, level+1, levelfin,False)
+    else:
+        return "no hay manera de que llegues aquí" #todo quita estp
+
+
+def CalcularDiferencia(l, cantidad, levelOr, levelDst,descenso):  # O(3n)
+    if descenso:
+        for i in l:
+            if i[1] <= levelDst:
+                pass
+            else:
+                cantidad -= (min(i[1],levelOr+1)-levelDst)*i[0]
+    else:
+        #Primero se suman los valores de la fila ini
+        cantidadAux=0
+        for silo in range(0, len(l)):
+            if l[silo][1] < levelOr:
+                break
+            else:
+                cantidadAux += l[silo][0]
+        cantidadAux*=(levelDst-levelOr+1)
+        cantidad+=cantidadAux
+        #Después se restan las diferencias
+        for i in l:
+            if i[1] >= levelDst:
+                pass
+            elif i[1]>=levelOr:
+                cantidad -= abs(levelDst - i[1])*i[0]
+    return cantidad
 
 from time import time
 
-ini=time()
-print(fun(l))
-print(time()-ini)
+ini = time()
+print(fun("7","4","1 8","1 4","1 2","1 1"))
+print(time() - ini)
