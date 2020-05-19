@@ -4,7 +4,7 @@ se vayan eliminando
 """
 
 
-def fun(*args):
+def fun(args):
     vol = int(args[0])
     numSilos = args[1]
     silos = []
@@ -65,12 +65,16 @@ def BusquedaBinariaVertical(l, obj):
     if obj == 0:
         return 0
     else:
-        return __recVertical__(l, obj, 0, 0, l[0][1],False)
+        ini=obj//sum(x[0] for x in l)
+        return __recVertical__(l, obj, 0, 0, l[0][1],False,ini)
 
 
-def __recVertical__(l, obj, cantidad, levelini, levelfin,tipo):
+def __recVertical__(l, obj, cantidad, levelini, levelfin,tipo,startinglevel=-1):
     #Tipo es para marcar ascenso o descenso, True para descenso
-    level = (levelfin + levelini) // 2
+    if startinglevel>0:
+        level=startinglevel
+    else:
+        level = (levelfin + levelini) // 2
     if tipo:
         cantidad = CalcularDiferencia(l, cantidad, levelfin, level, tipo)
     else:
@@ -112,8 +116,10 @@ def CalcularDiferencia(l, cantidad, levelOr, levelDst,descenso):  # O(3n)
                 cantidad -= abs(levelDst - i[1])*i[0]
     return cantidad
 
+
 from time import time
 
+w=open("casoPeorPractica2.txt","r").readlines()
 ini = time()
-print(fun("7","4","1 8","1 4","1 2","1 1"))
+print(fun(w))
 print(time() - ini)
