@@ -63,9 +63,9 @@ def __rec__(lista, buscado, ini, fin):
 
 def BusquedaBinariaVertical(l, obj):
     if obj == 0:
-        return 0
+        return -1
     else:
-        ini=obj//sum(x[0] for x in l)
+        ini=obj//sum(x[0] for x in l)-1
         return __recVertical__(l, obj, 0, 0, l[0][1],False,ini)
 
 
@@ -87,8 +87,6 @@ def __recVertical__(l, obj, cantidad, levelini, levelfin,tipo,startinglevel=-1):
 
     elif cantidad < obj:
         return __recVertical__(l, obj, cantidad, level+1, levelfin,False)
-    else:
-        return "no hay manera de que llegues aquí" #todo quita estp
 
 
 def CalcularDiferencia(l, cantidad, levelOr, levelDst,descenso):  # O(3n)
@@ -117,9 +115,9 @@ def CalcularDiferencia(l, cantidad, levelOr, levelDst,descenso):  # O(3n)
     return cantidad
 
 
-from time import time
 
-w=open("casoPeorPractica2.txt","r").readlines()
-ini = time()
-print(fun(w))
-print(time() - ini)
+args=[input(),input()]
+for i in range(0,int(args[1])):
+    args.append(input())
+
+print(fun(args))
